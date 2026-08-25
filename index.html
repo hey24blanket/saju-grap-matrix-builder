@@ -34,7 +34,7 @@
     
     .key-input-area { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
     textarea, input[type="text"] { width: 100%; border: 2px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; }
-    textarea { resize: vertical; min-height: 70px; }
+    textarea { resize: vertical; min-height: 80px; }
     textarea:focus, input:focus { border-color: var(--mint); }
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
@@ -79,10 +79,21 @@
   </div>
 
   <div class="card">
-    <h3 style="font-size: 16px; font-weight: 800;">1. Gemini API Key & ntfy 알림 설정</h3>
+    <h3 style="font-size: 16px; font-weight: 800;">1. 환경 설정 (자동 저장)</h3>
     <div class="key-input-area">
-      <textarea id="apiKeysInput" placeholder="Gemini API Key를 줄바꿈으로 여러 개 입력하세요...&#10;AIzaSy...&#10;AIzaSy..."></textarea>
-      <input type="text" id="ntfyTopicInput" placeholder="ntfy 토픽 이름 입력 (예: saju-grap-builder-7829)">
+      <label style="font-size: 12px; font-weight: 700; color: var(--subtext);">Gemini API Key Pool (줄바꿈 구분)</label>
+      <textarea id="apiKeysInput" placeholder="AIzaSy...&#10;AIzaSy..."></textarea>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: var(--subtext);">ntfy 토픽명</label>
+          <input type="text" id="ntfyTopicInput" placeholder="saju-grap-matrix-builder">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: var(--subtext);">사용할 Gemini 모델명</label>
+          <input type="text" id="modelInput" value="gemini-1.5-flash" placeholder="gemini-1.5-flash">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -113,7 +124,7 @@
       <button class="btn btn-secondary" id="btnPause" onclick="pauseGeneration()" disabled>⏸ 일시정지</button>
       <button class="btn btn-accent" id="btnExportJSON" onclick="exportJSON()" disabled>💾 JSON 다운로드</button>
       <button class="btn btn-secondary" id="btnExportCSV" onclick="exportCSV()" disabled>📄 CSV 다운로드</button>
-      <button class="btn btn-secondary" onclick="clearStorage()" style="color: #d9534f; border-color: #d9534f;">🗑 저장소 초기화</button>
+      <button class="btn btn-secondary" onclick="clearStorage()" style="color: #d9534f; border-color: #d9534f;">🗑 작업 캐시 초기화</button>
     </div>
   </div>
 
@@ -147,6 +158,24 @@
     let successCount = 0;
     let errorCount = 0;
 
+    function saveSettings() {
+      localStorage.setItem('saju_api_keys', document.getElementById('apiKeysInput').value);
+      localStorage.setItem('saju_ntfy_topic', document.getElementById('ntfyTopicInput').value);
+      localStorage.setItem('saju_model_name', document.getElementById('modelInput').value);
+    }
+
+    function loadSettings() {
+      if (localStorage.getItem('saju_api_keys')) {
+        document.getElementById('apiKeysInput').value = localStorage.getItem('saju_api_keys');
+      }
+      if (localStorage.getItem('saju_ntfy_topic')) {
+        document.getElementById('ntfyTopicInput').value = localStorage.getItem('saju_ntfy_topic');
+      }
+      if (localStorage.getItem('saju_model_name')) {
+        document.getElementById('modelInput').value = localStorage.getItem('saju_model_name');
+      }
+    }
+
     function buildTasks() {
       tasks = [];
       let id = 1;
@@ -172,7 +201,13 @@
     }
 
     function initStorage() {
+      loadSettings();
       buildTasks();
+
+      document.getElementById('apiKeysInput').addEventListener('input', saveSettings);
+      document.getElementById('ntfyTopicInput').addEventListener('input', saveSettings);
+      document.getElementById('modelInput').addEventListener('input', saveSettings);
+
       const saved = localStorage.getItem('saju_completed_data');
       if (saved) {
         completedResults = JSON.parse(saved);
@@ -203,19 +238,19 @@
       return raw.split('\n').map(k => k.trim()).filter(k => k.length > 10);
     }
 
-    async function sendNtfyNotification(count) {
+    async function sendNtfyAlert(title, message) {
       const topic = document.getElementById('ntfyTopicInput').value.trim();
       if (!topic) return;
 
       try {
         await fetch(`https://ntfy.sh/${topic}`, {
           method: 'POST',
-          body: `[사주그랩 Compiler] 현재 ${count}개 데이터 작성이 완료되었습니다! (${((count/3600)*100).toFixed(1)}%)`,
-          headers: { 'Title': 'SajuGrap Matrix Compiler' }
+          body: message,
+          headers: { 'Title': title }
         });
-        log(`[ntfy] ${count}개 생성 완료 알림 푸시 성공`);
+        log(`[ntfy 알림] ${title}`);
       } catch (e) {
-        log(`[ntfy] 알림 전송 실패: ${e.message}`, true);
+        log(`[ntfy 실패] ${e.message}`, true);
       }
     }
 
@@ -226,12 +261,14 @@
         return;
       }
 
+      saveSettings();
       isRunning = true;
       document.getElementById('btnStart').disabled = true;
       document.getElementById('btnPause').disabled = false;
       document.getElementById('statActiveKeys').innerText = `${keys.length} 개`;
 
       log(`생성 작업 시작. (남은 작업: ${tasks.length}개, 사용 키: ${keys.length}개)`);
+      sendNtfyAlert("SajuGrap Compiler", `생성 작업이 시작되었습니다. (남은 작업: ${tasks.length}개)`);
 
       keys.forEach((key, idx) => {
         runWorker(key, idx);
@@ -243,6 +280,7 @@
       document.getElementById('btnStart').disabled = false;
       document.getElementById('btnPause').disabled = true;
       log("작업이 일시정지 되었습니다.");
+      sendNtfyAlert("SajuGrap Compiler", `작업이 일시정지되었습니다. (완료: ${completedResults.length}/3600)`);
     }
 
     async function runWorker(apiKey, workerId) {
@@ -262,7 +300,7 @@
           updateUI(task, res);
 
           if (completedResults.length % 100 === 0) {
-            sendNtfyNotification(completedResults.length);
+            sendNtfyAlert("SajuGrap Progress Alert", `현재 ${completedResults.length}개 데이터 작성 완료! (${((completedResults.length/3600)*100).toFixed(1)}%)`);
           }
 
           await new Promise(r => setTimeout(r, 4000));
@@ -270,19 +308,23 @@
           log(`[Worker ${workerId + 1}] 에러 (${task.content_id}): ${err.message}`, true);
           tasks.push(task);
           errorCount++;
+
+          sendNtfyAlert("SajuGrap API 에러 발생", `[Worker ${workerId + 1}] ${task.content_id} 생성 중 에러 발생: ${err.message}`);
+
           await new Promise(r => setTimeout(r, 8000));
         }
       }
 
       if (completedResults.length === 3600) {
         log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
-        sendNtfyNotification(3600);
+        sendNtfyAlert("SajuGrap Compiler 완료", "🎉 모든 3,600개 DB 수집 생성이 성공적으로 종료되었습니다!");
         pauseGeneration();
       }
     }
 
     async function callGeminiAPI(apiKey, task) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const modelName = document.getElementById('modelInput').value.trim() || 'gemini-1.5-flash';
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const prompt = `
 너는 사주그랩의 AI 멘탈 케어 해설 컴파일러다.
 다음 조건에 따라 유저용 풀이 문장을 작성하라.
@@ -366,18 +408,17 @@
     }
 
     function clearStorage() {
-      if (confirm("정말 저장된 이전 데이터를 모두 삭제하고 초기화하시겠습니까?")) {
+      if (confirm("정말 저장된 진행 데이터 및 설정을 초기화하시겠습니까?")) {
         localStorage.removeItem('saju_completed_data');
         completedResults = [];
         successCount = 0;
         errorCount = 0;
         buildTasks();
         updateStatsOnly();
-        log("[System] 로컬 저장소가 초기화되었습니다.");
+        log("[System] 로컬 작업 데이터가 초기화되었습니다.");
       }
     }
 
-    // Initialize on page load
     window.onload = initStorage;
   </script>
 </body>
