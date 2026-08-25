@@ -113,7 +113,7 @@
           </div>
           <div>
             <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">사용할 Gemini 모델명</label>
-            <input type="text" id="modelInput" placeholder="gemini-3.7-flash" value="gemini-3.7-flash">
+            <input type="text" id="modelInput" placeholder="gemini-2.0-flash" value="gemini-2.0-flash">
           </div>
         </div>
       </div>
@@ -324,48 +324,10 @@
       sendNtfyAlert("SajuGrap Compiler", `작업이 일시정지되었습니다. (완료: ${completedResults.length}/3600)`);
     }
 
-    async function runWorker(apiKey, workerId) {
-      while (isRunning && tasks.length > 0) {
-        const task = tasks.shift();
-        if (!task) break;
-
-        try {
-          const res = await callGeminiAPI(apiKey, task);
-          const fullRecord = { ...task, ...res };
-          
-          completedResults.push(fullRecord);
-          successCount++;
-
-          localStorage.setItem('saju_completed_data', JSON.stringify(completedResults));
-
-          updateUI(task, res);
-
-          if (completedResults.length % 100 === 0) {
-            sendNtfyAlert("SajuGrap Progress Alert", `현재 ${completedResults.length}개 데이터 작성 완료! (${((completedResults.length/3600)*100).toFixed(1)}%)`);
-          }
-
-          await new Promise(r => setTimeout(r, 4000));
-        } catch (err) {
-          log(`[Worker ${workerId + 1}] 에러 (${task.content_id}): ${err.message}`, true);
-          tasks.push(task);
-          errorCount++;
-
-          sendNtfyAlert("SajuGrap API 에러 발생", `[Worker ${workerId + 1}] ${task.content_id} 생성 중 에러 발생: ${err.message}`);
-
-          await new Promise(r => setTimeout(r, 8000));
-        }
-      }
-
-      if (completedResults.length === 3600) {
-        log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
-        sendNtfyAlert("SajuGrap Compiler 완료", "🎉 모든 3,600개 DB 수집 생성이 성공적으로 종료되었습니다!");
-        pauseGeneration();
-      }
-    }
-
-    async function callGeminiAPI(apiKey, task) {
-      const modelName = document.getElementById('modelInput').value.trim() || 'gemini-3.7-flash';
+    async function callGeminiAPI(apiKey, task, retries = 3) {
+      const modelName = document.getElementById('modelInput').value.trim() || 'gemini-2.0-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      
       const prompt = `
 너는 사주그랩의 AI 멘탈 케어 해설 컴파일러다.
 다음 조건에 따라 유저용 풀이 문장을 작성하라.
@@ -388,19 +350,73 @@
 }
 `;
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { response_mime_type: "application/json" }
-        })
-      });
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { response_mime_type: "application/json" }
+            })
+          });
 
-      if (!response.ok) throw new Error(`API HTTP Error: ${response.status}`);
-      const data = await response.json();
-      const text = data.candidates[0].content.parts[0].text;
-      return JSON.parse(text);
+          if (!response.ok) {
+            // 500, 503, 429 서버/쿼터 에러 시 자동 대기 후 재시도
+            if ([500, 503, 429].includes(response.status) && attempt < retries) {
+              log(`[경고] API HTTP ${response.status} 발생. (${attempt}/${retries}회 자동 재시도 중...)`);
+              await new Promise(r => setTimeout(r, 2000 * attempt));
+              continue;
+            }
+            throw new Error(`API HTTP Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const text = data.candidates[0].content.parts[0].text;
+          return JSON.parse(text);
+
+        } catch (err) {
+          if (attempt === retries) throw err;
+        }
+      }
+    }
+
+    async function runWorker(apiKey, workerId) {
+      while (isRunning && tasks.length > 0) {
+        const task = tasks.shift();
+        if (!task) break;
+
+        try {
+          const res = await callGeminiAPI(apiKey, task);
+          const fullRecord = { ...task, ...res };
+          
+          completedResults.push(fullRecord);
+          successCount++;
+
+          localStorage.setItem('saju_completed_data', JSON.stringify(completedResults));
+          updateUI(task, res);
+
+          if (completedResults.length % 100 === 0) {
+            sendNtfyAlert("SajuGrap Progress Alert", `현재 ${completedResults.length}개 데이터 작성 완료! (${((completedResults.length/3600)*100).toFixed(1)}%)`);
+          }
+
+          await new Promise(r => setTimeout(r, 3000));
+        } catch (err) {
+          log(`[Worker ${workerId + 1}] 최종 실패 (${task.content_id}): ${err.message}`, true);
+          tasks.push(task); // 실패 건은 대기열 재등록
+          errorCount++;
+
+          sendNtfyAlert("SajuGrap API 에러 발생", `[Worker ${workerId + 1}] ${task.content_id} 생성 실패: ${err.message}`);
+
+          await new Promise(r => setTimeout(r, 5000));
+        }
+      }
+
+      if (completedResults.length === 3600) {
+        log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
+        sendNtfyAlert("SajuGrap Compiler 완료", "🎉 모든 3,600개 DB 수집 생성이 성공적으로 종료되었습니다!");
+        pauseGeneration();
+      }
     }
 
     function updateStatsOnly() {
