@@ -70,7 +70,8 @@
 
     .preview-card { border: 2px dashed var(--border); border-radius: 16px; padding: 16px; background: #fafafa; margin-top: 12px; }
     .preview-title { font-weight: 800; font-size: 14px; color: var(--text); margin-bottom: 8px; }
-    .preview-body { font-size: 13px; color: var(--subtext); line-height: 1.5; }
+    .preview-body { font-size: 13px; color: var(--subtext); line-height: 1.6; }
+    .preview-body p { margin-bottom: 6px; }
 
     /* Settings Modal Popup Styling */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
@@ -188,7 +189,7 @@
     let successCount = 0;
     let errorCount = 0;
 
-    // Modal Control & Persistence
+    // Modal Control & Settings Persistence
     function openSettingsModal() {
       document.getElementById('settingsModal').style.display = 'flex';
     }
@@ -329,8 +330,9 @@
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       
       const prompt = `
-너는 사주그랩의 AI 멘탈 케어 해설 컴파일러다.
-다음 조건에 따라 유저용 풀이 문장을 작성하라.
+너는 사주그랩의 AI 멘탈케어 명리 분석가다.
+제공된 사주 조건과 에너지 파동 상태를 바탕으로, 원인과 결과가 명확한 깊이 있는 명리 분석 글을 작성하라.
+전체 JSON 답변의 총 분량은 350자~400자 내외가 되도록 풍부하게 서술해야 한다.
 
 [입력 조건]
 - 일주: ${task.ilju}
@@ -338,15 +340,17 @@
 - 영역: ${task.domain}
 - 상태: 파동 레벨 ${task.phase_level}
 
-[작성 규칙]
-1. 전문 용어(충, 형, 12운성, Level, Y축 등)를 절대 쓰지 말고 문과생도 이해할 수 있는 자연스럽고 따뜻한 어투로 작성하라.
-2. 반드시 아래 JSON 구성을 정확히 지켜 답변하라.
+[작성 지침 및 인과 구조]
+1. 단순한 조언이 아닌 "왜 이런 기운이 형성되었는지(원인)" -> "이로 인해 마음과 행동에 어떤 현상이 나타나는지(결과)" -> "기운을 조율하기 위해 무엇을 해야 하는지(솔루션)"의 논리적 인과관계를 반드시 갖추어라.
+2. 전문 한자 용어(충, 형, 12운성 등)는 피하되, '기운의 흐름', '에너지의 과발산/침체' 등 명리학적 기운의 논리를 문과생도 이해하기 쉽게 풀어써라.
+3. 각 항목별 글자 수 가이드를 엄격히 준수하여 전체 분량을 350자 이상으로 맞춰라.
 
+[JSON 출력 형식]
 {
-  "diagnosis": "현재 마음과 기운의 상태 한 줄 요약",
-  "interpretation": "상황에 대한 친절한 상세 해석",
-  "strategy": "지금 바로 실행하기 좋은 행동 지침",
-  "caution": "주의해야 할 점 및 완급 조절 팁"
+  "diagnosis": "[에너지 상태 진단] ${task.ilju}일주가 ${task.wolji} ${task.gyeok}의 환경에서 레벨 ${task.phase_level}의 파동을 만났을 때 형성되는 핵심 기운의 상태 분석 (70~90자)",
+  "interpretation": "[인과적 심층 해석] 현재 기운의 흐름이 왜 이러한 심리적 현상이나 환경적 자극을 유발하는지, 성향과 파동의 얽힘에 대한 논리적 해석 (130~150자)",
+  "strategy": "[기운 조율 전략] 치우친 기운을 완화하고 선순환으로 바꾸기 위한 구체적이고 실천 가능한 행동 지침 (80~100자)",
+  "caution": "[완급 조절 마인드셋] 과유불급을 막고 현재 상태에서 가장 주의해야 할 마음가짐과 완급 조절 팁 (60~80자)"
 }
 `;
 
@@ -357,12 +361,14 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { response_mime_type: "application/json" }
+              generationConfig: { 
+                response_mime_type: "application/json",
+                temperature: 0.7 
+              }
             })
           });
 
           if (!response.ok) {
-            // 500, 503, 429 서버/쿼터 에러 시 자동 대기 후 재시도
             if ([500, 503, 429].includes(response.status) && attempt < retries) {
               log(`[경고] API HTTP ${response.status} 발생. (${attempt}/${retries}회 자동 재시도 중...)`);
               await new Promise(r => setTimeout(r, 2000 * attempt));
@@ -403,7 +409,7 @@
           await new Promise(r => setTimeout(r, 3000));
         } catch (err) {
           log(`[Worker ${workerId + 1}] 최종 실패 (${task.content_id}): ${err.message}`, true);
-          tasks.push(task); // 실패 건은 대기열 재등록
+          tasks.push(task);
           errorCount++;
 
           sendNtfyAlert("SajuGrap API 에러 발생", `[Worker ${workerId + 1}] ${task.content_id} 생성 실패: ${err.message}`);
@@ -434,8 +440,10 @@
       document.getElementById('previewCard').style.display = 'block';
       document.getElementById('previewTitle').innerText = `최신 생성: ${task.content_id}`;
       document.getElementById('previewBody').innerHTML = `
-        <b>진단:</b> ${res.diagnosis}<br>
-        <b>전략:</b> ${res.strategy}
+        <p><b>🔍 진단:</b> ${res.diagnosis}</p>
+        <p><b>💡 해석:</b> ${res.interpretation}</p>
+        <p><b>🎯 전략:</b> ${res.strategy}</p>
+        <p><b>⚠️ 경계:</b> ${res.caution}</p>
       `;
 
       document.getElementById('btnExportJSON').disabled = false;
