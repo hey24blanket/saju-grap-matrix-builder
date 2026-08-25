@@ -34,7 +34,7 @@
     
     .key-input-area { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
     textarea, input[type="text"], input[type="number"] { width: 100%; border: 2.5px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; background: #fff; }
-    textarea { resize: vertical; min-height: 100px; }
+    textarea { resize: vertical; min-height: 90px; }
     textarea:focus, input:focus { border-color: var(--mint); }
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
@@ -68,7 +68,7 @@
     .preview-body p { margin-bottom: 6px; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
-    .modal-card { background: var(--card-bg); border: 3px solid var(--border); border-radius: var(--radius); padding: 28px; width: 90%; max-width: 580px; box-shadow: 6px 6px 0px var(--border); }
+    .modal-card { background: var(--card-bg); border: 3px solid var(--border); border-radius: var(--radius); padding: 28px; width: 90%; max-width: 620px; box-shadow: 6px 6px 0px var(--border); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .modal-header h3 { font-size: 18px; font-weight: 800; }
     .close-icon-btn { background: none; border: none; font-size: 20px; font-weight: 800; cursor: pointer; color: var(--text); }
@@ -98,7 +98,7 @@
         <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">Gemini API Key Pool (줄바꿈 구분)</label>
         <textarea id="apiKeysInput" placeholder="AIzaSy...&#10;AIzaSy..."></textarea>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
             <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">ntfy 토픽명</label>
             <input type="text" id="ntfyTopicInput" placeholder="saju-grap-test-360" value="saju-grap-test-360">
@@ -109,9 +109,19 @@
           </div>
         </div>
 
-        <div style="margin-top: 4px;">
-          <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">API 키 1개당 분당 호출 수 (RPM)</label>
-          <input type="number" id="rpmInput" placeholder="5" value="5" min="1" max="60">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">API 키당 RPM</label>
+            <input type="number" id="rpmInput" placeholder="5" value="5" min="1" max="60">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">워커 기동 시차 (초)</label>
+            <input type="number" id="staggerInput" placeholder="1.5" value="1.5" step="0.1" min="0">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">429 대기 시간 (초)</label>
+            <input type="number" id="backoffInput" placeholder="8" value="8" min="1">
+          </div>
         </div>
       </div>
 
@@ -155,7 +165,7 @@
   <div class="card">
     <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Real-time Live Log & Preview</h3>
     <div class="log-box" id="logBox">
-      <div class="log-entry">[System] 테스트 360 레코드 빌더 준비 완료. '⚙️ 설정'에서 키 입력 후 생성 시작하세요.</div>
+      <div class="log-entry">[System] 테스트 360 레코드 빌더 준비 완료. '⚙️ 설정'에서 인자 설정 후 시작하세요.</div>
     </div>
 
     <div class="preview-card" id="previewCard" style="display:none;">
@@ -210,6 +220,8 @@
       localStorage.setItem('saju_ntfy_topic_360', document.getElementById('ntfyTopicInput').value);
       localStorage.setItem('saju_model_name_360', document.getElementById('modelInput').value);
       localStorage.setItem('saju_rpm_limit_360', document.getElementById('rpmInput').value);
+      localStorage.setItem('saju_stagger_delay_360', document.getElementById('staggerInput').value);
+      localStorage.setItem('saju_backoff_delay_360', document.getElementById('backoffInput').value);
     }
 
     function loadSettings() {
@@ -217,6 +229,9 @@
       if (localStorage.getItem('saju_ntfy_topic_360')) document.getElementById('ntfyTopicInput').value = localStorage.getItem('saju_ntfy_topic_360');
       if (localStorage.getItem('saju_model_name_360')) document.getElementById('modelInput').value = localStorage.getItem('saju_model_name_360');
       if (localStorage.getItem('saju_rpm_limit_360')) document.getElementById('rpmInput').value = localStorage.getItem('saju_rpm_limit_360');
+      
+      document.getElementById('staggerInput').value = localStorage.getItem('saju_stagger_delay_360') || '1.5';
+      document.getElementById('backoffInput').value = localStorage.getItem('saju_backoff_delay_360') || '8';
     }
 
     function buildTasks() {
@@ -306,10 +321,16 @@
       document.getElementById('btnPause').disabled = false;
       document.getElementById('statActiveKeys').innerText = `${keys.length} 개`;
 
-      log(`360개 생성 시작 (남은 작업: ${tasks.length}개)`);
+      const staggerSec = parseFloat(document.getElementById('staggerInput').value) || 1.5;
+
+      log(`360개 생성 시작 (남은 작업: ${tasks.length}개 / 기동 시차: ${staggerSec}초)`);
       sendNtfyAlert("SajuGrap 360 Builder", `작업이 시작되었습니다. (${tasks.length}개 처리 예정)`);
 
-      keys.forEach((key, idx) => { runWorker(key, idx); });
+      keys.forEach((key, idx) => {
+        setTimeout(() => {
+          if (isRunning) runWorker(key, idx);
+        }, idx * staggerSec * 1000);
+      });
     }
 
     function pauseGeneration() {
@@ -321,6 +342,7 @@
 
     async function callGeminiAPI(apiKey, task, retries = 3) {
       const modelName = document.getElementById('modelInput').value.trim() || 'gemini-2.0-flash';
+      const backoffSec = parseFloat(document.getElementById('backoffInput').value) || 8;
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       
       const prompt = `
@@ -365,7 +387,7 @@
 
           if (!response.ok) {
             if ([500, 503, 429].includes(response.status) && attempt < retries) {
-              await new Promise(r => setTimeout(r, 4000 * attempt));
+              await new Promise(r => setTimeout(r, (backoffSec * 1000) * attempt));
               continue;
             }
             throw new Error(`HTTP Error: ${response.status}`);
@@ -382,7 +404,9 @@
 
     async function runWorker(apiKey, workerId) {
       const rpm = parseInt(document.getElementById('rpmInput').value) || 5;
+      const backoffSec = parseFloat(document.getElementById('backoffInput').value) || 8;
       const delayMs = (60 / rpm) * 1000;
+      const workerNum = workerId + 1;
 
       while (isRunning && tasks.length > 0) {
         const task = tasks.shift();
@@ -396,14 +420,14 @@
           successCount++;
 
           localStorage.setItem('saju_completed_data_360', JSON.stringify(completedResults));
-          updateUI(task, res);
+          updateUI(task, res, workerNum);
 
           await new Promise(r => setTimeout(r, delayMs));
         } catch (err) {
-          log(`[Worker ${workerId + 1}] 실패 (No.${task.no}): ${err.message}`, true);
+          log(`[Worker ${workerNum}] 실패 (No.${task.no}): ${err.message}`, true);
           tasks.push(task);
           errorCount++;
-          await new Promise(r => setTimeout(r, 3000));
+          await new Promise(r => setTimeout(r, backoffSec * 1000));
         }
       }
 
@@ -422,12 +446,12 @@
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
 
-    function updateUI(task, res) {
+    function updateUI(task, res, workerNum) {
       updateStatsOnly();
-      log(`[성공] No.${task.no} (${task.content_id})`);
+      log(`[Worker ${workerNum}] [성공] No.${task.no} (${task.content_id})`);
 
       document.getElementById('previewCard').style.display = 'block';
-      document.getElementById('previewTitle').innerText = `최신 데이터: No.${task.no} (${task.content_id})`;
+      document.getElementById('previewTitle').innerText = `최신 데이터 (by Worker ${workerNum}): No.${task.no} (${task.content_id})`;
       document.getElementById('previewBody').innerHTML = `
         <p style="color:var(--text); font-weight:800; font-size:14px; margin-bottom:8px;">💬 "${res.short_message}"</p>
         <p><b>🔍 진단:</b> ${res.diagnosis}</p>
