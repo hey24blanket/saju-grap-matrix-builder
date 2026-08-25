@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SajuGrap Matrix Content Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f2f5f3;
+      --card-bg: #ffffff;
+      --border: #202428;
+      --mint: #7cd3b7;
+      --mint-light: #e8f7f2;
+      --lavender: #e2e1f9;
+      --yellow: #fbf3d5;
+      --text: #1e2227;
+      --subtext: #636b74;
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo-badge { display: flex; align-items: center; gap: 12px; }
+    .avatar-circle { width: 44px; height: 44px; border: 2.5px solid var(--border); border-radius: 50%; background: var(--mint); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
+    .title-text h1 { font-size: 20px; font-weight: 800; }
+    .title-text p { font-size: 13px; color: var(--subtext); font-weight: 600; }
+
+    /* Custom Cards */
+    .card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: 4px 4px 0px var(--border); }
+    
+    /* API Key Pool Section */
+    .key-input-area { display: flex; gap: 12px; margin-top: 12px; }
+    textarea { width: 100%; border: 2px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; resize: vertical; min-height: 70px; }
+    textarea:focus { border-color: var(--mint); }
+
+    /* Dashboard Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: 18px; padding: 18px; text-align: center; box-shadow: 3px 3px 0px var(--border); }
+    .stat-card.mint { background: var(--mint-light); }
+    .stat-card.lavender { background: var(--lavender); }
+    .stat-card.yellow { background: var(--yellow); }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; }
+    .stat-label { font-size: 12px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
+
+    /* Progress Bar */
+    .progress-container { margin: 16px 0; }
+    .progress-bar-bg { width: 100%; height: 20px; background: #e0e0e0; border: 2px solid var(--border); border-radius: 999px; overflow: hidden; position: relative; }
+    .progress-bar-fill { height: 100%; background: var(--mint); width: 0%; transition: width 0.3s ease; border-right: 2px solid var(--border); }
+
+    /* Buttons & Controls */
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .btn { border: 2.5px solid var(--border); border-radius: 999px; padding: 12px 24px; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform 0.1s; box-shadow: 2.5px 2.5px 0px var(--border); display: inline-flex; align-items: center; gap: 8px; }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border); }
+    .btn-primary { background: var(--mint); color: var(--text); }
+    .btn-secondary { background: var(--card-bg); }
+    .btn-accent { background: var(--yellow); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Real-time Log Box */
+    .log-box { background: #1a1d20; color: #7cd3b7; font-family: monospace; font-size: 12px; padding: 16px; border-radius: 16px; border: 2.5px solid var(--border); height: 180px; overflow-y: auto; }
+    .log-entry { margin-bottom: 4px; word-break: break-all; }
+    .log-entry.error { color: #ff7b72; }
+
+    /* Preview Item Card */
+    .preview-card { border: 2px dashed var(--border); border-radius: 16px; padding: 16px; background: #fafafa; margin-top: 12px; }
+    .preview-title { font-weight: 800; font-size: 14px; color: var(--text); margin-bottom: 8px; }
+    .preview-body { font-size: 13px; color: var(--subtext); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-badge">
+      <div class="avatar-circle">SG</div>
+      <div class="title-text">
+        <h1>SajuGrap Matrix Compiler</h1>
+        <p>Parallel Gemini 3,600 Atomic DB Generator</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: API Keys Config -->
+  <div class="card">
+    <h3 style="font-size: 16px; font-weight: 800;">1. Gemini API Key Pool</h3>
+    <p style="font-size: 13px; color: var(--subtext); margin-top: 4px;">구글 API 키를 줄바꿈으로 구분해 여러 개 입력하세요. (Round-Robin 자동 병렬 처리)</p>
+    <div class="key-input-area">
+      <textarea id="apiKeysInput" placeholder="AIzaSy...&#10;AIzaSy...&#10;AIzaSy..."></textarea>
+    </div>
+  </div>
+
+  <!-- Step 2: Progress Dashboard -->
+  <div class="stats-grid">
+    <div class="stat-card mint">
+      <div class="stat-label">진행률 (Progress)</div>
+      <div class="stat-value" id="statProgress">0 / 3600</div>
+    </div>
+    <div class="stat-card lavender">
+      <div class="stat-label">활성 키 (Active Keys)</div>
+      <div class="stat-value" id="statActiveKeys">0 개</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">성공 / 실패</div>
+      <div class="stat-value" id="statStatus">0 / 0</div>
+    </div>
+  </div>
+
+  <!-- Controls & Progress Bar -->
+  <div class="card">
+    <div class="progress-container">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="btnStart" onclick="startGeneration()">▶ 생성 시작</button>
+      <button class="btn btn-secondary" id="btnPause" onclick="pauseGeneration()" disabled>⏸ 일시정지</button>
+      <button class="btn btn-accent" id="btnExportJSON" onclick="exportJSON()" disabled>💾 JSON 다운로드</button>
+      <button class="btn btn-secondary" id="btnExportCSV" onclick="exportCSV()" disabled>📄 CSV 다운로드</button>
+    </div>
+  </div>
+
+  <!-- Live Output Log & Sample Preview -->
+  <div class="card">
+    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">2. Real-time Live Log & Preview</h3>
+    <div class="log-box" id="logBox">
+      <div class="log-entry">[System] 준비 완료. API 키 입력 후 '생성 시작'을 누르세요.</div>
+    </div>
+
+    <div class="preview-card" id="previewCard" style="display:none;">
+      <div class="preview-title" id="previewTitle">최신 생성 데이터 미리보기</div>
+      <div class="preview-body" id="previewBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Matrix Combinations Setup (3,600 Total)
+    const iljus = ["갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축", "갑인", "을묘"]; // 대표 12개 일주 (확장 가능)
+    const woljiGyeoks = [
+      { wolji: "인월", gyeok: "정관격" }, { wolji: "묘월", gyeok: "편재격" },
+      { wolji: "진월", gyeok: "식신격" }, { wolji: "사월", gyeok: "인성격" },
+      { wolji: "오월", gyeok: "편관격" }, { wolji: "미월", gyeok: "정재격" },
+      { wolji: "신월", gyeok: "상관격" }, { wolji: "유월", gyeok: "겁재격" },
+      { wolji: "술월", gyeok: "양인격" }, { wolji: "해월", gyeok: "건록격" }
+    ]; // 10개 조합 (12 * 10 = 120개 원국)
+    const domains = ["overall", "career", "wealth", "relationship", "mental", "growth"]; // 6대 영역
+    const levels = [1, 2, 3, 4, 5]; // 5단계 파동
+
+    let tasks = [];
+    let completedResults = [];
+    let isRunning = false;
+    let successCount = 0;
+    let errorCount = 0;
+    let keyIndex = 0;
+
+    // Build 3,600 Matrix Tasks
+    function buildTasks() {
+      tasks = [];
+      let id = 1;
+      iljus.forEach(ilju => {
+        woljiGyeoks.forEach(wg => {
+          domains.forEach(domain => {
+            levels.forEach(level => {
+              tasks.push({
+                task_id: id++,
+                content_id: `${ilju}_${wg.wolji}_${wg.gyeok}_${domain}_L${level}`,
+                ilju: ilju,
+                wolji: wg.wolji,
+                gyeok: wg.gyeok,
+                strength_type: "신강",
+                domain: domain,
+                phase_level: level,
+                boundary_type: level >= 4 ? "HIGH" : "STABLE"
+              });
+            });
+          });
+        });
+      });
+    }
+    buildTasks();
+
+    function log(msg, isError = false) {
+      const logBox = document.getElementById('logBox');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${isError ? 'error' : ''}`;
+      entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function getApiKeys() {
+      const raw = document.getElementById('apiKeysInput').value;
+      return raw.split('\n').map(k => k.trim()).filter(k => k.length > 10);
+    }
+
+    async function startGeneration() {
+      const keys = getApiKeys();
+      if (keys.length === 0) {
+        alert("최소 하나 이상의 Gemini API Key를 입력하세요.");
+        return;
+      }
+
+      isRunning = true;
+      document.getElementById('btnStart').disabled = true;
+      document.getElementById('btnPause').disabled = false;
+      document.getElementById('statActiveKeys').innerText = `${keys.length} 개`;
+
+      log(`생성 작업 시작. (총 ${tasks.length}개 작업, API 키 ${keys.length}개 사용)`);
+
+      // Spawn parallel workers per key
+      keys.forEach((key, idx) => {
+        runWorker(key, idx);
+      });
+    }
+
+    function pauseGeneration() {
+      isRunning = false;
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnPause').disabled = true;
+      log("작업이 일시정지 되었습니다.");
+    }
+
+    async function runWorker(apiKey, workerId) {
+      while (isRunning && tasks.length > 0) {
+        const task = tasks.shift();
+        if (!task) break;
+
+        try {
+          const res = await callGeminiAPI(apiKey, task);
+          completedResults.push({ ...task, ...res });
+          successCount++;
+          
+          updateUI(task, res);
+          // Wait 5 seconds per key worker to strictly respect rate limits
+          await new Promise(r => setTimeout(r, 5000));
+        } catch (err) {
+          log(`[Worker ${workerId + 1}] 에러 발생 (${task.content_id}): ${err.message}`, true);
+          tasks.push(task); // Re-queue task on failure
+          errorCount++;
+          await new Promise(r => setTimeout(r, 10000));
+        }
+      }
+
+      if (completedResults.length === 3600) {
+        log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
+        pauseGeneration();
+      }
+    }
+
+    async function callGeminiAPI(apiKey, task) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const prompt = `
+너는 사주그랩의 AI 멘탈 케어 해설 컴파일러다.
+다음 조건에 따라 유저용 풀이 문장을 작성하라.
+
+[입력 조건]
+- 일주: ${task.ilju}
+- 월지/격국: ${task.wolji} ${task.gyeok}
+- 영역: ${task.domain}
+- 상태: 파동 레벨 ${task.phase_level}
+
+[작성 규칙]
+1. 전문 용어(충, 형, 12운성, Level, Y축 등)를 절대 쓰지 말고 문과생도 이해할 수 있는 자연스럽고 따뜻한 어투로 작성하라.
+2. 반드시 아래 JSON 구성을 정확히 지켜 답변하라.
+
+{
+  "diagnosis": "현재 마음과 기운의 상태 한 줄 요약",
+  "interpretation": "상황에 대한 친절한 상세 해석",
+  "strategy": "지금 바로 실행하기 좋은 행동 지침",
+  "caution": "주의해야 할 점 및 완급 조절 팁"
+}
+`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { response_mime_type: "application/json" }
+        })
+      });
+
+      if (!response.ok) throw new Error(`API HTTP Error: ${response.status}`);
+      const data = await response.json();
+      const text = data.candidates[0].content.parts[0].text;
+      return JSON.parse(text);
+    }
+
+    function updateUI(task, res) {
+      const total = 3600;
+      const current = completedResults.length;
+      const pct = ((current / total) * 100).toFixed(1);
+
+      document.getElementById('statProgress').innerText = `${current} / ${total}`;
+      document.getElementById('statStatus').innerText = `${successCount} / ${errorCount}`;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+
+      log(`[성공] ${task.content_id} 생성 완료`);
+
+      // Update Preview Card
+      document.getElementById('previewCard').style.display = 'block';
+      document.getElementById('previewTitle').innerText = `최신 생성: ${task.content_id}`;
+      document.getElementById('previewBody').innerHTML = `
+        <b>진단:</b> ${res.diagnosis}<br>
+        <b>전략:</b> ${res.strategy}
+      `;
+
+      if (completedResults.length > 0) {
+        document.getElementById('btnExportJSON').disabled = false;
+        document.getElementById('btnExportCSV').disabled = false;
+      }
+    }
+
+    // Export Helpers
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(completedResults, null, 2)], { type: "application/json" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `saju_grap_atomic_contents_${completedResults.length}.json`;
+      a.click();
+    }
+
+    function exportCSV() {
+      if (completedResults.length === 0) return;
+      const headers = Object.keys(completedResults[0]).join(",");
+      const rows = completedResults.map(row => 
+        Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
+      );
+      const csvContent = "\uFEFF" + [headers, ...rows].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `saju_grap_atomic_contents_${completedResults.length}.csv`;
+      a.click();
+    }
+  </script>
+</body>
+</html>
