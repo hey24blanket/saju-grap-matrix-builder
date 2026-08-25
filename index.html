@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SajuGrap Matrix Content Builder</title>
+  <title>SajuGrap Matrix Builder (360 Test Ver)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -24,23 +24,19 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px; max-width: 1100px; margin: 0 auto; }
 
-    /* Header & Action Bar */
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .logo-badge { display: flex; align-items: center; gap: 12px; }
     .avatar-circle { width: 44px; height: 44px; border: 2.5px solid var(--border); border-radius: 50%; background: var(--mint); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
     .title-text h1 { font-size: 20px; font-weight: 800; }
     .title-text p { font-size: 13px; color: var(--subtext); font-weight: 600; }
 
-    /* Card Component */
     .card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: 4px 4px 0px var(--border); }
     
-    /* Input UI Styles */
     .key-input-area { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-    textarea, input[type="text"] { width: 100%; border: 2.5px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; background: #fff; }
+    textarea, input[type="text"], input[type="number"] { width: 100%; border: 2.5px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; background: #fff; }
     textarea { resize: vertical; min-height: 100px; }
     textarea:focus, input:focus { border-color: var(--mint); }
 
-    /* Stats Grid */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
     .stat-card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: 18px; padding: 18px; text-align: center; box-shadow: 3px 3px 0px var(--border); }
     .stat-card.mint { background: var(--mint-light); }
@@ -49,21 +45,19 @@
     .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; }
     .stat-label { font-size: 12px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
 
-    /* Progress Bar */
     .progress-container { margin: 16px 0; }
     .progress-bar-bg { width: 100%; height: 20px; background: #e0e0e0; border: 2.5px solid var(--border); border-radius: 999px; overflow: hidden; position: relative; }
     .progress-bar-fill { height: 100%; background: var(--mint); width: 0%; transition: width 0.3s ease; border-right: 2.5px solid var(--border); }
 
-    /* Buttons */
     .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
     .btn { border: 2.5px solid var(--border); border-radius: 999px; padding: 12px 24px; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform 0.1s; box-shadow: 2.5px 2.5px 0px var(--border); display: inline-flex; align-items: center; gap: 8px; }
     .btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border); }
     .btn-primary { background: var(--mint); color: var(--text); }
     .btn-secondary { background: var(--card-bg); }
     .btn-accent { background: var(--yellow); }
+    .btn-danger { background: #ffebeb; color: #d9534f; border-color: #d9534f; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Log Box & Preview */
     .log-box { background: #1a1d20; color: #7cd3b7; font-family: monospace; font-size: 12px; padding: 16px; border-radius: 16px; border: 2.5px solid var(--border); height: 180px; overflow-y: auto; }
     .log-entry { margin-bottom: 4px; word-break: break-all; }
     .log-entry.error { color: #ff7b72; }
@@ -73,7 +67,6 @@
     .preview-body { font-size: 13px; color: var(--subtext); line-height: 1.6; }
     .preview-body p { margin-bottom: 6px; }
 
-    /* Settings Modal Popup Styling */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
     .modal-card { background: var(--card-bg); border: 3px solid var(--border); border-radius: var(--radius); padding: 28px; width: 90%; max-width: 580px; box-shadow: 6px 6px 0px var(--border); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -83,19 +76,17 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <div class="logo-badge">
       <div class="avatar-circle">SG</div>
       <div class="title-text">
-        <h1>SajuGrap Matrix Compiler</h1>
-        <p>Parallel Gemini 3,600 Atomic DB Generator</p>
+        <h1>SajuGrap 360 Test Compiler</h1>
+        <p>5 Time-Scales × 5 Domains × 4 Wave Trends × 3 Energy Types</p>
       </div>
     </div>
     <button class="btn btn-secondary" onclick="openSettingsModal()">⚙️ 설정</button>
   </div>
 
-  <!-- Settings Modal (Popup) -->
   <div id="settingsModal" class="modal-overlay" style="display: none;">
     <div class="modal-card">
       <div class="modal-header">
@@ -104,18 +95,23 @@
       </div>
 
       <div class="key-input-area">
-        <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">Gemini API Key Pool (줄바꿈으로 구분)</label>
+        <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">Gemini API Key Pool (줄바꿈 구분)</label>
         <textarea id="apiKeysInput" placeholder="AIzaSy...&#10;AIzaSy..."></textarea>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
           <div>
             <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">ntfy 토픽명</label>
-            <input type="text" id="ntfyTopicInput" placeholder="saju-grap-matrix-builder" value="saju-grap-matrix-builder">
+            <input type="text" id="ntfyTopicInput" placeholder="saju-grap-test-360" value="saju-grap-test-360">
           </div>
           <div>
-            <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">사용할 Gemini 모델명</label>
+            <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">Gemini 모델명</label>
             <input type="text" id="modelInput" placeholder="gemini-2.0-flash" value="gemini-2.0-flash">
           </div>
+        </div>
+
+        <div style="margin-top: 4px;">
+          <label style="font-size: 12px; font-weight: 800; color: var(--subtext);">API 키 1개당 분당 호출 수 (RPM)</label>
+          <input type="number" id="rpmInput" placeholder="5" value="5" min="1" max="60">
         </div>
       </div>
 
@@ -125,11 +121,10 @@
     </div>
   </div>
 
-  <!-- Dashboard Stats -->
   <div class="stats-grid">
     <div class="stat-card mint">
       <div class="stat-label">진행률 (Progress)</div>
-      <div class="stat-value" id="statProgress">0 / 3600</div>
+      <div class="stat-value" id="statProgress">0 / 360</div>
     </div>
     <div class="stat-card lavender">
       <div class="stat-label">활성 키 (Active Keys)</div>
@@ -141,7 +136,6 @@
     </div>
   </div>
 
-  <!-- Control Actions -->
   <div class="card">
     <div class="progress-container">
       <div class="progress-bar-bg">
@@ -150,19 +144,18 @@
     </div>
 
     <div class="controls">
-      <button class="btn btn-primary" id="btnStart" onclick="startGeneration()">▶ 생성 시작</button>
+      <button class="btn btn-primary" id="btnStart" onclick="startGeneration()">▶ 360개 생성 시작</button>
       <button class="btn btn-secondary" id="btnPause" onclick="pauseGeneration()" disabled>⏸ 일시정지</button>
       <button class="btn btn-accent" id="btnExportJSON" onclick="exportJSON()" disabled>💾 JSON 다운로드</button>
       <button class="btn btn-secondary" id="btnExportCSV" onclick="exportCSV()" disabled>📄 CSV 다운로드</button>
-      <button class="btn btn-secondary" onclick="clearStorage()" style="color: #d9534f; border-color: #d9534f;">🗑 작업 캐시 초기화</button>
+      <button class="btn btn-danger" onclick="clearDataOnly()">🗑 테스트 데이터 초기화</button>
     </div>
   </div>
 
-  <!-- Real-time Live Log & Preview -->
   <div class="card">
     <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Real-time Live Log & Preview</h3>
     <div class="log-box" id="logBox">
-      <div class="log-entry">[System] 준비 완료. '⚙️ 설정'에서 API 키 입력 후 '생성 시작'을 누르세요.</div>
+      <div class="log-entry">[System] 테스트 360 레코드 빌더 준비 완료. '⚙️ 설정'에서 키 입력 후 생성 시작하세요.</div>
     </div>
 
     <div class="preview-card" id="previewCard" style="display:none;">
@@ -172,16 +165,36 @@
   </div>
 
   <script>
-    const iljus = ["갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축", "갑인", "을묘"];
-    const woljiGyeoks = [
-      { wolji: "인월", gyeok: "정관격" }, { wolji: "묘월", gyeok: "편재격" },
-      { wolji: "진월", gyeok: "식신격" }, { wolji: "사월", gyeok: "인성격" },
-      { wolji: "오월", gyeok: "편관격" }, { wolji: "미월", gyeok: "정재격" },
-      { wolji: "신월", gyeok: "상관격" }, { wolji: "유월", gyeok: "겁재격" },
-      { wolji: "술월", gyeok: "양인격" }, { wolji: "해월", gyeok: "건록격" }
+    const TOTAL_TARGET = 360;
+
+    const timeScales = [
+      { id: "hour", name: "시" },
+      { id: "day", name: "일" },
+      { id: "month", name: "월" },
+      { id: "year", name: "연" },
+      { id: "daewun", name: "대운" }
     ];
-    const domains = ["overall", "career", "wealth", "relationship", "mental", "growth"];
-    const levels = [1, 2, 3, 4, 5];
+
+    const domains = [
+      { id: "overall", name: "총운" },
+      { id: "business", name: "사업운" },
+      { id: "wealth", name: "재물운" },
+      { id: "mental", name: "심신운" },
+      { id: "love", name: "연애운" }
+    ];
+
+    const waveTrends = [
+      { id: "trough", name: "바닥(충전기)" },
+      { id: "rising", name: "반등(상승기)" },
+      { id: "peak", name: "정점(과열/유지기)" },
+      { id: "falling", name: "하락(조율기)" }
+    ];
+
+    const energyTypes = [
+      { id: "T1_yang", name: "양적 추진형" },
+      { id: "T2_yin", name: "음적 정의형" },
+      { id: "T3_neutral", name: "중립 조율형" }
+    ];
 
     let tasks = [];
     let completedResults = [];
@@ -189,52 +202,43 @@
     let successCount = 0;
     let errorCount = 0;
 
-    // Modal Control & Settings Persistence
-    function openSettingsModal() {
-      document.getElementById('settingsModal').style.display = 'flex';
-    }
-
-    function closeSettingsModal() {
-      saveSettings();
-      document.getElementById('settingsModal').style.display = 'none';
-    }
+    function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
+    function closeSettingsModal() { saveSettings(); document.getElementById('settingsModal').style.display = 'none'; }
 
     function saveSettings() {
-      localStorage.setItem('saju_api_keys', document.getElementById('apiKeysInput').value);
-      localStorage.setItem('saju_ntfy_topic', document.getElementById('ntfyTopicInput').value);
-      localStorage.setItem('saju_model_name', document.getElementById('modelInput').value);
+      localStorage.setItem('saju_api_keys_360', document.getElementById('apiKeysInput').value);
+      localStorage.setItem('saju_ntfy_topic_360', document.getElementById('ntfyTopicInput').value);
+      localStorage.setItem('saju_model_name_360', document.getElementById('modelInput').value);
+      localStorage.setItem('saju_rpm_limit_360', document.getElementById('rpmInput').value);
     }
 
     function loadSettings() {
-      if (localStorage.getItem('saju_api_keys')) {
-        document.getElementById('apiKeysInput').value = localStorage.getItem('saju_api_keys');
-      }
-      if (localStorage.getItem('saju_ntfy_topic')) {
-        document.getElementById('ntfyTopicInput').value = localStorage.getItem('saju_ntfy_topic');
-      }
-      if (localStorage.getItem('saju_model_name')) {
-        document.getElementById('modelInput').value = localStorage.getItem('saju_model_name');
-      }
+      if (localStorage.getItem('saju_api_keys_360')) document.getElementById('apiKeysInput').value = localStorage.getItem('saju_api_keys_360');
+      if (localStorage.getItem('saju_ntfy_topic_360')) document.getElementById('ntfyTopicInput').value = localStorage.getItem('saju_ntfy_topic_360');
+      if (localStorage.getItem('saju_model_name_360')) document.getElementById('modelInput').value = localStorage.getItem('saju_model_name_360');
+      if (localStorage.getItem('saju_rpm_limit_360')) document.getElementById('rpmInput').value = localStorage.getItem('saju_rpm_limit_360');
     }
 
     function buildTasks() {
       tasks = [];
-      let id = 1;
-      iljus.forEach(ilju => {
-        woljiGyeoks.forEach(wg => {
-          domains.forEach(domain => {
-            levels.forEach(level => {
+      let seqNum = 1;
+      timeScales.forEach(t => {
+        domains.forEach(d => {
+          waveTrends.forEach(w => {
+            energyTypes.forEach(e => {
               tasks.push({
-                task_id: id++,
-                content_id: `${ilju}_${wg.wolji}_${wg.gyeok}_${domain}_L${level}`,
-                ilju: ilju,
-                wolji: wg.wolji,
-                gyeok: wg.gyeok,
-                strength_type: "신강",
-                domain: domain,
-                phase_level: level,
-                boundary_type: level >= 4 ? "HIGH" : "STABLE"
+                no: seqNum,
+                content_id: `${t.id}_${d.id}_${w.id}_${e.id}`,
+                time_scale: t.name,
+                time_scale_id: t.id,
+                domain: d.name,
+                domain_id: d.id,
+                wave_trend: w.name,
+                wave_trend_id: w.id,
+                energy_type: e.name,
+                energy_type_id: e.id
               });
+              seqNum++;
             });
           });
         });
@@ -245,17 +249,13 @@
       loadSettings();
       buildTasks();
 
-      document.getElementById('apiKeysInput').addEventListener('input', saveSettings);
-      document.getElementById('ntfyTopicInput').addEventListener('input', saveSettings);
-      document.getElementById('modelInput').addEventListener('input', saveSettings);
-
-      const saved = localStorage.getItem('saju_completed_data');
+      const saved = localStorage.getItem('saju_completed_data_360');
       if (saved) {
         completedResults = JSON.parse(saved);
         successCount = completedResults.length;
         const completedIds = new Set(completedResults.map(r => r.content_id));
         tasks = tasks.filter(t => !completedIds.has(t.content_id));
-        log(`[System] 이전 완료 데이터 ${successCount}개를 복구했습니다. (남은 작업: ${tasks.length}개)`);
+        log(`[System] 이전 저장 데이터 ${successCount}개 복구 완료. (남은 작업: ${tasks.length}개)`);
         
         if (completedResults.length > 0) {
           document.getElementById('btnExportJSON').disabled = false;
@@ -282,23 +282,20 @@
     async function sendNtfyAlert(title, message) {
       const topic = document.getElementById('ntfyTopicInput').value.trim();
       if (!topic) return;
-
       try {
+        const encodedTitle = `=?utf-8?b?${btoa(unescape(encodeURIComponent(title)))}?=`;
         await fetch(`https://ntfy.sh/${topic}`, {
           method: 'POST',
           body: message,
-          headers: { 'Title': title }
+          headers: { 'Title': encodedTitle }
         });
-        log(`[ntfy 알림] ${title}`);
-      } catch (e) {
-        log(`[ntfy 실패] ${e.message}`, true);
-      }
+      } catch (e) {}
     }
 
     async function startGeneration() {
       const keys = getApiKeys();
       if (keys.length === 0) {
-        alert("API 키가 설정되어 있지 않습니다. 상단 '⚙️ 설정' 버튼을 눌러 API 키를 입력하세요.");
+        alert("API 키를 설정해주세요.");
         openSettingsModal();
         return;
       }
@@ -309,12 +306,10 @@
       document.getElementById('btnPause').disabled = false;
       document.getElementById('statActiveKeys').innerText = `${keys.length} 개`;
 
-      log(`생성 작업 시작. (남은 작업: ${tasks.length}개, 사용 키: ${keys.length}개)`);
-      sendNtfyAlert("SajuGrap Compiler", `생성 작업이 시작되었습니다. (남은 작업: ${tasks.length}개)`);
+      log(`360개 생성 시작 (남은 작업: ${tasks.length}개)`);
+      sendNtfyAlert("SajuGrap 360 Builder", `작업이 시작되었습니다. (${tasks.length}개 처리 예정)`);
 
-      keys.forEach((key, idx) => {
-        runWorker(key, idx);
-      });
+      keys.forEach((key, idx) => { runWorker(key, idx); });
     }
 
     function pauseGeneration() {
@@ -322,7 +317,6 @@
       document.getElementById('btnStart').disabled = false;
       document.getElementById('btnPause').disabled = true;
       log("작업이 일시정지 되었습니다.");
-      sendNtfyAlert("SajuGrap Compiler", `작업이 일시정지되었습니다. (완료: ${completedResults.length}/3600)`);
     }
 
     async function callGeminiAPI(apiKey, task, retries = 3) {
@@ -330,27 +324,28 @@
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       
       const prompt = `
-너는 사주그랩의 AI 멘탈케어 명리 분석가다.
-제공된 사주 조건과 에너지 파동 상태를 바탕으로, 원인과 결과가 명확한 깊이 있는 명리 분석 글을 작성하라.
-전체 JSON 답변의 총 분량은 350자~400자 내외가 되도록 풍부하게 서술해야 한다.
+너는 사주그랩(SajuGrap)의 AI 멘탈 뷰어 분석가다.
+사용자가 그래프를 터치하며 [시/일/월/연/대운]으로 시간 축을 넓혀볼 때, 현재의 꺾임에 흔들리지 않고 거시적 흐름을 자각하도록 돕는 멘탈 가이드를 작성하라.
 
-[입력 조건]
-- 일주: ${task.ilju}
-- 월지/격국: ${task.wolji} ${task.gyeok}
-- 영역: ${task.domain}
-- 상태: 파동 레벨 ${task.phase_level}
+[분석 타겟 조건]
+- 시간 축(time_scale): ${task.time_scale}
+- 분석 영역(domain): ${task.domain}
+- 파동 추세(wave_trend): ${task.wave_trend}
+- 사주 성향(energy_type): ${task.energy_type}
 
-[작성 지침 및 인과 구조]
-1. 단순한 조언이 아닌 "왜 이런 기운이 형성되었는지(원인)" -> "이로 인해 마음과 행동에 어떤 현상이 나타나는지(결과)" -> "기운을 조율하기 위해 무엇을 해야 하는지(솔루션)"의 논리적 인과관계를 반드시 갖추어라.
-2. 전문 한자 용어(충, 형, 12운성 등)는 피하되, '기운의 흐름', '에너지의 과발산/침체' 등 명리학적 기운의 논리를 문과생도 이해하기 쉽게 풀어써라.
-3. 각 항목별 글자 수 가이드를 엄격히 준수하여 전체 분량을 350자 이상으로 맞춰라.
+[작성 지침]
+1. macro_perspective(거시적 시각 전환): 단기 흐름(${task.time_scale})이 바닥/하락이더라도, 더 큰 파동(월, 연, 대운)에서는 어떻게 기운의 균형과 반등이 일어나는지 확신을 주는 시각 전환 멘트를 작성하라.
+2. short_message: 그래프 상단 카드에 즉시 노출할 30자 이내의 임팩트 있는 한 줄 멘탈 요약.
+3. 한국어 톤앤매너: 따뜻하면서도 명리적 기운 논리를 직관적으로 전달하는 서술.
 
-[JSON 출력 형식]
+[JSON 출력 format]
 {
-  "diagnosis": "[에너지 상태 진단] ${task.ilju}일주가 ${task.wolji} ${task.gyeok}의 환경에서 레벨 ${task.phase_level}의 파동을 만났을 때 형성되는 핵심 기운의 상태 분석 (70~90자)",
-  "interpretation": "[인과적 심층 해석] 현재 기운의 흐름이 왜 이러한 심리적 현상이나 환경적 자극을 유발하는지, 성향과 파동의 얽힘에 대한 논리적 해석 (130~150자)",
-  "strategy": "[기운 조율 전략] 치우친 기운을 완화하고 선순환으로 바꾸기 위한 구체적이고 실천 가능한 행동 지침 (80~100자)",
-  "caution": "[완급 조절 마인드셋] 과유불급을 막고 현재 상태에서 가장 주의해야 할 마음가짐과 완급 조절 팁 (60~80자)"
+  "short_message": "그래프 상단 30자 이내 한 줄 요약",
+  "diagnosis": "${task.time_scale} 단위에서 ${task.wave_trend} 상태에 놓인 ${task.energy_type}의 에너지를 정밀 진단 (60~80자)",
+  "interpretation": "왜 현재 이러한 심리적/환경적 흐름이 형성되었는지 원인과 결과의 논리 해석 (100~120자)",
+  "strategy": "현 파동 구간을 가장 지혜롭게 활용하기 위한 당장 실천할 행동 지침 (70~90자)",
+  "caution": "완급 조절을 위한 주의사항 및 마인드셋 (50~70자)",
+  "macro_perspective": "시간 축 확대 시 시각 전환 가이드 (현재 단기 파동과 상위 파동 간의 맥락 상기) (80~100자)"
 }
 `;
 
@@ -370,17 +365,15 @@
 
           if (!response.ok) {
             if ([500, 503, 429].includes(response.status) && attempt < retries) {
-              log(`[경고] API HTTP ${response.status} 발생. (${attempt}/${retries}회 자동 재시도 중...)`);
-              await new Promise(r => setTimeout(r, 2000 * attempt));
+              await new Promise(r => setTimeout(r, 4000 * attempt));
               continue;
             }
-            throw new Error(`API HTTP Error: ${response.status}`);
+            throw new Error(`HTTP Error: ${response.status}`);
           }
 
           const data = await response.json();
           const text = data.candidates[0].content.parts[0].text;
           return JSON.parse(text);
-
         } catch (err) {
           if (attempt === retries) throw err;
         }
@@ -388,6 +381,9 @@
     }
 
     async function runWorker(apiKey, workerId) {
+      const rpm = parseInt(document.getElementById('rpmInput').value) || 5;
+      const delayMs = (60 / rpm) * 1000;
+
       while (isRunning && tasks.length > 0) {
         const task = tasks.shift();
         if (!task) break;
@@ -399,51 +395,46 @@
           completedResults.push(fullRecord);
           successCount++;
 
-          localStorage.setItem('saju_completed_data', JSON.stringify(completedResults));
+          localStorage.setItem('saju_completed_data_360', JSON.stringify(completedResults));
           updateUI(task, res);
 
-          if (completedResults.length % 100 === 0) {
-            sendNtfyAlert("SajuGrap Progress Alert", `현재 ${completedResults.length}개 데이터 작성 완료! (${((completedResults.length/3600)*100).toFixed(1)}%)`);
-          }
-
-          await new Promise(r => setTimeout(r, 3000));
+          await new Promise(r => setTimeout(r, delayMs));
         } catch (err) {
-          log(`[Worker ${workerId + 1}] 최종 실패 (${task.content_id}): ${err.message}`, true);
+          log(`[Worker ${workerId + 1}] 실패 (No.${task.no}): ${err.message}`, true);
           tasks.push(task);
           errorCount++;
-
-          sendNtfyAlert("SajuGrap API 에러 발생", `[Worker ${workerId + 1}] ${task.content_id} 생성 실패: ${err.message}`);
-
-          await new Promise(r => setTimeout(r, 5000));
+          await new Promise(r => setTimeout(r, 3000));
         }
       }
 
-      if (completedResults.length === 3600) {
-        log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
-        sendNtfyAlert("SajuGrap Compiler 완료", "🎉 모든 3,600개 DB 수집 생성이 성공적으로 종료되었습니다!");
+      if (completedResults.length === TOTAL_TARGET) {
+        log("🎉 360개 테스트 레코드 작업이 모두 완료되었습니다!");
+        sendNtfyAlert("SajuGrap 360 완료", "🎉 360개 테스트 데이터 생성이 모두 완료되었습니다!");
         pauseGeneration();
       }
     }
 
     function updateStatsOnly() {
       const current = completedResults.length;
-      const pct = ((current / 3600) * 100).toFixed(1);
-      document.getElementById('statProgress').innerText = `${current} / 3600`;
+      const pct = ((current / TOTAL_TARGET) * 100).toFixed(1);
+      document.getElementById('statProgress').innerText = `${current} / ${TOTAL_TARGET}`;
       document.getElementById('statStatus').innerText = `${successCount} / ${errorCount}`;
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
 
     function updateUI(task, res) {
       updateStatsOnly();
-      log(`[성공] ${task.content_id} 생성 및 자동 저장 완료`);
+      log(`[성공] No.${task.no} (${task.content_id})`);
 
       document.getElementById('previewCard').style.display = 'block';
-      document.getElementById('previewTitle').innerText = `최신 생성: ${task.content_id}`;
+      document.getElementById('previewTitle').innerText = `최신 데이터: No.${task.no} (${task.content_id})`;
       document.getElementById('previewBody').innerHTML = `
+        <p style="color:var(--text); font-weight:800; font-size:14px; margin-bottom:8px;">💬 "${res.short_message}"</p>
         <p><b>🔍 진단:</b> ${res.diagnosis}</p>
         <p><b>💡 해석:</b> ${res.interpretation}</p>
         <p><b>🎯 전략:</b> ${res.strategy}</p>
-        <p><b>⚠️ 경계:</b> ${res.caution}</p>
+        <p><b>⚠️ 완급조절:</b> ${res.caution}</p>
+        <p style="color:#2b6cb0; background:#ebf8ff; padding:8px; border-radius:8px; margin-top:6px;"><b>🔭 시각 전환 (Macro Perspective):</b> ${res.macro_perspective}</p>
       `;
 
       document.getElementById('btnExportJSON').disabled = false;
@@ -454,7 +445,7 @@
       const blob = new Blob([JSON.stringify(completedResults, null, 2)], { type: "application/json" });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `saju_grap_atomic_contents_${completedResults.length}.json`;
+      a.download = `saju_grap_360_test_records_${completedResults.length}.json`;
       a.click();
     }
 
@@ -468,23 +459,22 @@
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `saju_grap_atomic_contents_${completedResults.length}.csv`;
+      a.download = `saju_grap_360_test_records_${completedResults.length}.csv`;
       a.click();
     }
 
-    function clearStorage() {
-      if (confirm("정말 저장된 진행 데이터 및 환경 설정을 초기화하시겠습니까?")) {
-        localStorage.removeItem('saju_completed_data');
-        localStorage.removeItem('saju_api_keys');
-        localStorage.removeItem('saju_ntfy_topic');
-        localStorage.removeItem('saju_model_name');
+    function clearDataOnly() {
+      if (confirm("생성된 360개 테스트 데이터 캐시를 초기화하시겠습니까?")) {
+        localStorage.removeItem('saju_completed_data_360');
         completedResults = [];
         successCount = 0;
         errorCount = 0;
         buildTasks();
         updateStatsOnly();
-        document.getElementById('apiKeysInput').value = '';
-        log("[System] 로컬 작업 데이터 및 설정이 완전히 초기화되었습니다.");
+        document.getElementById('previewCard').style.display = 'none';
+        document.getElementById('btnExportJSON').disabled = true;
+        document.getElementById('btnExportCSV').disabled = true;
+        log("[System] 테스트 캐시 데이터가 초기화되었습니다.");
       }
     }
 
