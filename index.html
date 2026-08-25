@@ -24,22 +24,19 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px; max-width: 1100px; margin: 0 auto; }
 
-    /* Header */
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .logo-badge { display: flex; align-items: center; gap: 12px; }
     .avatar-circle { width: 44px; height: 44px; border: 2.5px solid var(--border); border-radius: 50%; background: var(--mint); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
     .title-text h1 { font-size: 20px; font-weight: 800; }
     .title-text p { font-size: 13px; color: var(--subtext); font-weight: 600; }
 
-    /* Custom Cards */
     .card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: 4px 4px 0px var(--border); }
     
-    /* API Key Pool Section */
-    .key-input-area { display: flex; gap: 12px; margin-top: 12px; }
-    textarea { width: 100%; border: 2px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; resize: vertical; min-height: 70px; }
-    textarea:focus { border-color: var(--mint); }
+    .key-input-area { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    textarea, input[type="text"] { width: 100%; border: 2px solid var(--border); border-radius: 16px; padding: 14px; font-size: 13px; outline: none; }
+    textarea { resize: vertical; min-height: 70px; }
+    textarea:focus, input:focus { border-color: var(--mint); }
 
-    /* Dashboard Stats Grid */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
     .stat-card { background: var(--card-bg); border: 2.5px solid var(--border); border-radius: 18px; padding: 18px; text-align: center; box-shadow: 3px 3px 0px var(--border); }
     .stat-card.mint { background: var(--mint-light); }
@@ -48,12 +45,10 @@
     .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; }
     .stat-label { font-size: 12px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
 
-    /* Progress Bar */
     .progress-container { margin: 16px 0; }
     .progress-bar-bg { width: 100%; height: 20px; background: #e0e0e0; border: 2px solid var(--border); border-radius: 999px; overflow: hidden; position: relative; }
     .progress-bar-fill { height: 100%; background: var(--mint); width: 0%; transition: width 0.3s ease; border-right: 2px solid var(--border); }
 
-    /* Buttons & Controls */
     .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
     .btn { border: 2.5px solid var(--border); border-radius: 999px; padding: 12px 24px; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform 0.1s; box-shadow: 2.5px 2.5px 0px var(--border); display: inline-flex; align-items: center; gap: 8px; }
     .btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border); }
@@ -62,12 +57,10 @@
     .btn-accent { background: var(--yellow); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Real-time Log Box */
     .log-box { background: #1a1d20; color: #7cd3b7; font-family: monospace; font-size: 12px; padding: 16px; border-radius: 16px; border: 2.5px solid var(--border); height: 180px; overflow-y: auto; }
     .log-entry { margin-bottom: 4px; word-break: break-all; }
     .log-entry.error { color: #ff7b72; }
 
-    /* Preview Item Card */
     .preview-card { border: 2px dashed var(--border); border-radius: 16px; padding: 16px; background: #fafafa; margin-top: 12px; }
     .preview-title { font-weight: 800; font-size: 14px; color: var(--text); margin-bottom: 8px; }
     .preview-body { font-size: 13px; color: var(--subtext); line-height: 1.5; }
@@ -75,7 +68,6 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <div class="logo-badge">
       <div class="avatar-circle">SG</div>
@@ -86,16 +78,14 @@
     </div>
   </div>
 
-  <!-- Step 1: API Keys Config -->
   <div class="card">
-    <h3 style="font-size: 16px; font-weight: 800;">1. Gemini API Key Pool</h3>
-    <p style="font-size: 13px; color: var(--subtext); margin-top: 4px;">구글 API 키를 줄바꿈으로 구분해 여러 개 입력하세요. (Round-Robin 자동 병렬 처리)</p>
+    <h3 style="font-size: 16px; font-weight: 800;">1. Gemini API Key & ntfy 알림 설정</h3>
     <div class="key-input-area">
-      <textarea id="apiKeysInput" placeholder="AIzaSy...&#10;AIzaSy...&#10;AIzaSy..."></textarea>
+      <textarea id="apiKeysInput" placeholder="Gemini API Key를 줄바꿈으로 여러 개 입력하세요...&#10;AIzaSy...&#10;AIzaSy..."></textarea>
+      <input type="text" id="ntfyTopicInput" placeholder="ntfy 토픽 이름 입력 (예: saju-grap-builder-7829)">
     </div>
   </div>
 
-  <!-- Step 2: Progress Dashboard -->
   <div class="stats-grid">
     <div class="stat-card mint">
       <div class="stat-label">진행률 (Progress)</div>
@@ -111,7 +101,6 @@
     </div>
   </div>
 
-  <!-- Controls & Progress Bar -->
   <div class="card">
     <div class="progress-container">
       <div class="progress-bar-bg">
@@ -124,10 +113,10 @@
       <button class="btn btn-secondary" id="btnPause" onclick="pauseGeneration()" disabled>⏸ 일시정지</button>
       <button class="btn btn-accent" id="btnExportJSON" onclick="exportJSON()" disabled>💾 JSON 다운로드</button>
       <button class="btn btn-secondary" id="btnExportCSV" onclick="exportCSV()" disabled>📄 CSV 다운로드</button>
+      <button class="btn btn-secondary" onclick="clearStorage()" style="color: #d9534f; border-color: #d9534f;">🗑 저장소 초기화</button>
     </div>
   </div>
 
-  <!-- Live Output Log & Sample Preview -->
   <div class="card">
     <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">2. Real-time Live Log & Preview</h3>
     <div class="log-box" id="logBox">
@@ -141,26 +130,23 @@
   </div>
 
   <script>
-    // 1. Matrix Combinations Setup (3,600 Total)
-    const iljus = ["갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축", "갑인", "을묘"]; // 대표 12개 일주 (확장 가능)
+    const iljus = ["갑진", "을사", "병오", "정미", "무신", "기유", "경술", "신해", "임자", "계축", "갑인", "을묘"];
     const woljiGyeoks = [
       { wolji: "인월", gyeok: "정관격" }, { wolji: "묘월", gyeok: "편재격" },
       { wolji: "진월", gyeok: "식신격" }, { wolji: "사월", gyeok: "인성격" },
       { wolji: "오월", gyeok: "편관격" }, { wolji: "미월", gyeok: "정재격" },
       { wolji: "신월", gyeok: "상관격" }, { wolji: "유월", gyeok: "겁재격" },
       { wolji: "술월", gyeok: "양인격" }, { wolji: "해월", gyeok: "건록격" }
-    ]; // 10개 조합 (12 * 10 = 120개 원국)
-    const domains = ["overall", "career", "wealth", "relationship", "mental", "growth"]; // 6대 영역
-    const levels = [1, 2, 3, 4, 5]; // 5단계 파동
+    ];
+    const domains = ["overall", "career", "wealth", "relationship", "mental", "growth"];
+    const levels = [1, 2, 3, 4, 5];
 
     let tasks = [];
     let completedResults = [];
     let isRunning = false;
     let successCount = 0;
     let errorCount = 0;
-    let keyIndex = 0;
 
-    // Build 3,600 Matrix Tasks
     function buildTasks() {
       tasks = [];
       let id = 1;
@@ -184,7 +170,24 @@
         });
       });
     }
-    buildTasks();
+
+    function initStorage() {
+      buildTasks();
+      const saved = localStorage.getItem('saju_completed_data');
+      if (saved) {
+        completedResults = JSON.parse(saved);
+        successCount = completedResults.length;
+        const completedIds = new Set(completedResults.map(r => r.content_id));
+        tasks = tasks.filter(t => !completedIds.has(t.content_id));
+        log(`[System] 이전 완료 데이터 ${successCount}개를 복구했습니다. (남은 작업: ${tasks.length}개)`);
+        
+        if (completedResults.length > 0) {
+          document.getElementById('btnExportJSON').disabled = false;
+          document.getElementById('btnExportCSV').disabled = false;
+        }
+      }
+      updateStatsOnly();
+    }
 
     function log(msg, isError = false) {
       const logBox = document.getElementById('logBox');
@@ -200,6 +203,22 @@
       return raw.split('\n').map(k => k.trim()).filter(k => k.length > 10);
     }
 
+    async function sendNtfyNotification(count) {
+      const topic = document.getElementById('ntfyTopicInput').value.trim();
+      if (!topic) return;
+
+      try {
+        await fetch(`https://ntfy.sh/${topic}`, {
+          method: 'POST',
+          body: `[사주그랩 Compiler] 현재 ${count}개 데이터 작성이 완료되었습니다! (${((count/3600)*100).toFixed(1)}%)`,
+          headers: { 'Title': 'SajuGrap Matrix Compiler' }
+        });
+        log(`[ntfy] ${count}개 생성 완료 알림 푸시 성공`);
+      } catch (e) {
+        log(`[ntfy] 알림 전송 실패: ${e.message}`, true);
+      }
+    }
+
     async function startGeneration() {
       const keys = getApiKeys();
       if (keys.length === 0) {
@@ -212,9 +231,8 @@
       document.getElementById('btnPause').disabled = false;
       document.getElementById('statActiveKeys').innerText = `${keys.length} 개`;
 
-      log(`생성 작업 시작. (총 ${tasks.length}개 작업, API 키 ${keys.length}개 사용)`);
+      log(`생성 작업 시작. (남은 작업: ${tasks.length}개, 사용 키: ${keys.length}개)`);
 
-      // Spawn parallel workers per key
       keys.forEach((key, idx) => {
         runWorker(key, idx);
       });
@@ -234,22 +252,31 @@
 
         try {
           const res = await callGeminiAPI(apiKey, task);
-          completedResults.push({ ...task, ...res });
-          successCount++;
+          const fullRecord = { ...task, ...res };
           
+          completedResults.push(fullRecord);
+          successCount++;
+
+          localStorage.setItem('saju_completed_data', JSON.stringify(completedResults));
+
           updateUI(task, res);
-          // Wait 5 seconds per key worker to strictly respect rate limits
-          await new Promise(r => setTimeout(r, 5000));
+
+          if (completedResults.length % 100 === 0) {
+            sendNtfyNotification(completedResults.length);
+          }
+
+          await new Promise(r => setTimeout(r, 4000));
         } catch (err) {
-          log(`[Worker ${workerId + 1}] 에러 발생 (${task.content_id}): ${err.message}`, true);
-          tasks.push(task); // Re-queue task on failure
+          log(`[Worker ${workerId + 1}] 에러 (${task.content_id}): ${err.message}`, true);
+          tasks.push(task);
           errorCount++;
-          await new Promise(r => setTimeout(r, 10000));
+          await new Promise(r => setTimeout(r, 8000));
         }
       }
 
       if (completedResults.length === 3600) {
         log("🎉 모든 3,600개 데이터 생성이 완료되었습니다!");
+        sendNtfyNotification(3600);
         pauseGeneration();
       }
     }
@@ -293,18 +320,18 @@
       return JSON.parse(text);
     }
 
-    function updateUI(task, res) {
-      const total = 3600;
+    function updateStatsOnly() {
       const current = completedResults.length;
-      const pct = ((current / total) * 100).toFixed(1);
-
-      document.getElementById('statProgress').innerText = `${current} / ${total}`;
+      const pct = ((current / 3600) * 100).toFixed(1);
+      document.getElementById('statProgress').innerText = `${current} / 3600`;
       document.getElementById('statStatus').innerText = `${successCount} / ${errorCount}`;
       document.getElementById('progressBar').style.width = `${pct}%`;
+    }
 
-      log(`[성공] ${task.content_id} 생성 완료`);
+    function updateUI(task, res) {
+      updateStatsOnly();
+      log(`[성공] ${task.content_id} 생성 및 자동 저장 완료`);
 
-      // Update Preview Card
       document.getElementById('previewCard').style.display = 'block';
       document.getElementById('previewTitle').innerText = `최신 생성: ${task.content_id}`;
       document.getElementById('previewBody').innerHTML = `
@@ -312,13 +339,10 @@
         <b>전략:</b> ${res.strategy}
       `;
 
-      if (completedResults.length > 0) {
-        document.getElementById('btnExportJSON').disabled = false;
-        document.getElementById('btnExportCSV').disabled = false;
-      }
+      document.getElementById('btnExportJSON').disabled = false;
+      document.getElementById('btnExportCSV').disabled = false;
     }
 
-    // Export Helpers
     function exportJSON() {
       const blob = new Blob([JSON.stringify(completedResults, null, 2)], { type: "application/json" });
       const a = document.createElement('a');
@@ -340,6 +364,21 @@
       a.download = `saju_grap_atomic_contents_${completedResults.length}.csv`;
       a.click();
     }
+
+    function clearStorage() {
+      if (confirm("정말 저장된 이전 데이터를 모두 삭제하고 초기화하시겠습니까?")) {
+        localStorage.removeItem('saju_completed_data');
+        completedResults = [];
+        successCount = 0;
+        errorCount = 0;
+        buildTasks();
+        updateStatsOnly();
+        log("[System] 로컬 저장소가 초기화되었습니다.");
+      }
+    }
+
+    // Initialize on page load
+    window.onload = initStorage;
   </script>
 </body>
 </html>
